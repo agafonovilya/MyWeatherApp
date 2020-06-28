@@ -17,115 +17,112 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:background="#90CAF9">
+            android:layout_height="50dp">
 
-            <ImageView
-                android:id="@+id/imageView4"
-                android:layout_width="162dp"
-                android:layout_height="150dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="1dp"
+            <ImageButton
+                android:id="@+id/imageButton3"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@android:color/transparent"
+                android:scaleType="centerCrop"
+                android:padding="10dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_baseline_location_city_24" />
+
+            <ImageButton
+                android:id="@+id/imageButton"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@android:color/transparent"
+                android:scaleType="centerCrop"
+                android:padding="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cityName"
-                app:srcCompat="@drawable/ic_wsymbol_0001_sunny" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_cogwheel" />
 
             <TextView
                 android:id="@+id/cityName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="91dp"
-                android:layout_marginEnd="91dp"
+                android:layout_width="277dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="50dp"
+                android:gravity="center"
+                android:singleLine="false"
                 android:text="@string/City"
                 android:textColor="#000000"
-                android:textSize="24sp"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:autoSizeMaxTextSize="24sp"
+                app:autoSizeMinTextSize="12sp"
+                app:autoSizeTextType="uniform"
+                app:layout_constraintEnd_toStartOf="@+id/imageButton"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/temperature"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="40dp"
-                android:layout_marginTop="71dp"
-                android:text="+22"
-                android:textColor="#000000"
-                android:textSize="50sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/wind"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="60dp"
-                android:text="5 m/s"
-                android:textColor="#000000"
-                android:textSize="18sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/temperature" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <HorizontalScrollView
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="#2B2B2B"
-            android:orientation="horizontal">
+            android:layout_height="200dp"
+            android:background="#EDFFEB">
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="200dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="50dp"
+                android:layout_marginEnd="50dp"
+                android:gravity="center"
+                android:text="Sunny"
+                android:textColor="#000000"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:id="@+id/linearLayout"
+                android:layout_width="200dp"
+                android:layout_height="100dp"
+                android:layout_marginStart="50dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="50dp"
+                android:layout_marginBottom="10dp"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-                <Button
-                    android:id="@+id/today"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Today" />
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:gravity="center"
+                    android:text="+22"
+                    android:textColor="#000000"
+                    android:textSize="32sp" />
 
-                <Button
-                    android:id="@+id/nextDay"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Nextday" />
-
-                <Button
-                    android:id="@+id/afterNextDay"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="afterNextDay" />
-
-                <Button
-                    android:id="@+id/sevenDay"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="sevenDay" />
-
-                <Button
-                    android:id="@+id/twoWeeks"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="twoWeeks" />
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginEnd="50dp"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/ic_wsymbol_0001_sunny" />
 
             </LinearLayout>
-        </HorizontalScrollView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#25335C"
+            android:background="#FFFFFF"
             android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:divider="@android:color/black"
+                android:showDividers="middle">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -138,7 +135,7 @@
                         android:layout_weight="1"
                         android:text="12:00"
                         android:textAlignment="gravity"
-                        android:textColor="#FFFFFF"
+                        android:textColor="#000000"
                         android:textSize="18sp" />
 
                     <TextView
@@ -147,7 +144,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:text="+22  5m/s"
-                        android:textColor="#FFFFFF"
+                        android:textColor="#000000"
                         android:textSize="18sp" />
 
                     <ImageView
@@ -170,7 +167,7 @@
                         android:layout_weight="1"
                         android:text="13:00"
                         android:textAlignment="gravity"
-                        android:textColor="#FFFFFF"
+                        android:textColor="#000000"
                         android:textSize="18sp" />
 
                     <TextView
@@ -179,7 +176,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:text="+24  5m/s"
-                        android:textColor="#FFFFFF"
+                        android:textColor="#000000"
                         android:textSize="18sp" />
 
                     <ImageView
@@ -201,7 +198,7 @@
                         android:layout_weight="1"
                         android:text="14:00"
                         android:textAlignment="gravity"
-                        android:textColor="#FFFFFF"
+                        android:textColor="#000000"
                         android:textSize="18sp" />
 
                     <TextView
@@ -210,7 +207,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:text="+24  7m/s"
-                        android:textColor="#FFFFFF"
+                        android:textColor="#000000"
                         android:textSize="18sp" />
 
                     <ImageView
@@ -232,7 +229,7 @@
                         android:layout_weight="1"
                         android:text="15:00"
                         android:textAlignment="gravity"
-                        android:textColor="#FFFFFF"
+                        android:textColor="#000000"
                         android:textSize="18sp" />
 
                     <TextView
@@ -241,7 +238,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:text="+24  8m/s"
-                        android:textColor="#FFFFFF"
+                        android:textColor="#000000"
                         android:textSize="18sp" />
 
                     <ImageView
@@ -263,7 +260,7 @@
                         android:layout_weight="1"
                         android:text="16:00"
                         android:textAlignment="gravity"
-                        android:textColor="#FFFFFF"
+                        android:textColor="#000000"
                         android:textSize="18sp" />
 
                     <TextView
@@ -272,7 +269,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:text="+25  4m/s"
-                        android:textColor="#FFFFFF"
+                        android:textColor="#000000"
                         android:textSize="18sp" />
 
                     <ImageView
@@ -294,7 +291,7 @@
                         android:layout_weight="1"
                         android:text="17:00"
                         android:textAlignment="gravity"
-                        android:textColor="#FFFFFF"
+                        android:textColor="#000000"
                         android:textSize="18sp" />
 
                     <TextView
@@ -303,7 +300,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:text="+25  2m/s"
-                        android:textColor="#FFFFFF"
+                        android:textColor="#000000"
                         android:textSize="18sp" />
 
                     <ImageView
