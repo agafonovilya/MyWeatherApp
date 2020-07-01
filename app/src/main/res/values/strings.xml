@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">My weather app</string>
     <string name="City">Saint-Petersburg</string>
+    <string-array name="arrayOfCity">
+        <item>Moscow</item>
+        <item>Saint-Petersburg</item>
+        <item>Glazov</item>
+    </string-array>
 </resources>
