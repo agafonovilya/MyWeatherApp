@@ -28,15 +28,16 @@
                 android:padding="10dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_baseline_location_city_24" />
+                app:srcCompat="@drawable/ic_baseline_location_city_24"
+                android:onClick="clickOnCitySelection"/>
 
             <ImageButton
                 android:id="@+id/imageButton"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:background="@android:color/transparent"
-                android:scaleType="centerCrop"
                 android:padding="10dp"
+                android:scaleType="centerCrop"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_cogwheel" />
@@ -113,15 +114,15 @@
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:background="#FFFFFF"
             android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:divider="@android:color/black"
+                android:orientation="vertical"
                 android:showDividers="middle">
 
                 <LinearLayout
@@ -312,5 +313,19 @@
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="141dp">
+
+            <Button
+                android:id="@+id/button2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Построить маршрут до Александровской колонны"
+                android:onClick="openDoubleGIS"/>
+        </FrameLayout>
+
     </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
