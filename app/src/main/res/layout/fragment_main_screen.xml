@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -24,12 +23,12 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:background="@android:color/transparent"
-                android:scaleType="centerCrop"
+                android:onClick="clickOnCitySelection"
                 android:padding="10dp"
+                android:scaleType="centerCrop"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_baseline_location_city_24"
-                android:onClick="clickOnCitySelection"/>
+                app:srcCompat="@drawable/ic_baseline_location_city_24" />
 
             <ImageButton
                 android:id="@+id/imageButton"
@@ -314,7 +313,7 @@
             </LinearLayout>
         </ScrollView>
 
-        <FrameLayout
+        <!--<FrameLayout
             android:layout_width="match_parent"
             android:layout_height="141dp">
 
@@ -324,7 +323,7 @@
                 android:layout_height="wrap_content"
                 android:text="Построить маршрут до Александровской колонны"
                 android:onClick="openDoubleGIS"/>
-        </FrameLayout>
+        </FrameLayout>-->
 
     </LinearLayout>
 
