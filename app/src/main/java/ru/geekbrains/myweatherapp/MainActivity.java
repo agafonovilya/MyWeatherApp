@@ -1,74 +1,72 @@
 package ru.geekbrains.myweatherapp;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.Toast;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MyApp";
-    private static Singleton singleton;
+    private static final int REQUEST_CITY = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
-        String instanceState;
-        if (savedInstanceState == null){
-            instanceState = "Первый запуск!";
+        setContentView(R.layout.activity_main);
+
+        ImageButton startSettingsActivity = findViewById(R.id.imageButton);
+        startSettingsActivity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
+            }
+        });
+
+    }
+
+    public void clickOnCitySelection(View view) {
+        Intent intent = new Intent(MainActivity.this, CitySelectionActivity.class);
+                startActivityForResult(intent, REQUEST_CITY);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(requestCode== REQUEST_CITY){
+            if(resultCode==RESULT_OK){
+                TextView textView = findViewById(R.id.cityName);
+                textView.setText(data.getStringExtra("RESULT"));
+            }
         }
         else{
-            instanceState = "Повторный запуск!";
+            super.onActivityResult(requestCode, resultCode, data);
         }
-        Toast.makeText(getApplicationContext(), instanceState + " - onCreate()", Toast.LENGTH_SHORT).show();
-        Log.d(TAG, instanceState + " - onCreate()");
-
-        singleton = Singleton.getInstance();
-        Log.d(TAG, "First onCreate() at " + singleton.getTime());
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Toast.makeText(getApplicationContext(), "onStart()", Toast.LENGTH_SHORT).show();
-        Log.d(TAG, "onStart()");
+    public void openDoubleGIS(View view) {
+        Uri uri = Uri.parse("dgis://2gis.ru/routeSearch/rsType/car/to/30.315753,59.939069"); //Строим маршрут до александровской колонны
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+
+        // Проверяем, установлено ли хотя бы одно приложение, способное выполнить это действие.
+
+        PackageManager packageManager = getPackageManager();
+        List<ResolveInfo> activities = packageManager.queryIntentActivities(intent, 0);
+        boolean isIntentSafe = activities.size() > 0;
+        if (!isIntentSafe) {// Если приложение не установлено — переходим в Google Play.
+            intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("market://details?id=ru.dublgis.dgismobile"));
+        }
+        startActivity(intent);
     }
 
-    @Override
-    protected void onRestoreInstanceState(Bundle saveInstanceState){
-        super.onRestoreInstanceState(saveInstanceState);
-        Toast.makeText(getApplicationContext(), "Повторный запуск!! - onRestoreInstanceState()", Toast.LENGTH_SHORT).show();
-        Log.d(TAG, "Повторный запуск!! - onRestoreInstanceState()");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Toast.makeText(getApplicationContext(), "onResume()", Toast.LENGTH_SHORT).show();
-        Log.d(TAG, "onResume()");
-        Log.d(TAG, "First onCreate() at " + singleton.getTime());
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Toast.makeText(getApplicationContext(), "onPause()", Toast.LENGTH_SHORT).show();
-        Log.d(TAG, "onPause()");
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle saveInstanceState){
-        super.onSaveInstanceState(saveInstanceState);
-        Toast.makeText(getApplicationContext(), "onSaveInstanceState()", Toast.LENGTH_SHORT).show();
-        Log.d(TAG, "onSaveInstanceState()");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Toast.makeText(getApplicationContext(), "onStop()", Toast.LENGTH_SHORT).show();
-        Log.d(TAG, "onStop()");
-    }
 
 }
