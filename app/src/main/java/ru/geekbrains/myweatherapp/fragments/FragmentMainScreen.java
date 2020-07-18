@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,6 +12,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.button.MaterialButton;
 
 import ru.geekbrains.myweatherapp.MainActivityByFragment;
 import ru.geekbrains.myweatherapp.R;
@@ -28,14 +29,18 @@ public class FragmentMainScreen extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ImageButton startSettingsFragment = (ImageButton) view.findViewById(R.id.imageButton);
+
+        //Устанавливаем слушатель для кнопки "настройки"
+        MaterialButton startSettingsFragment = (MaterialButton) view.findViewById(R.id.imageButton);
         startSettingsFragment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ((MainActivityByFragment)getActivity()).startFragment(2);
             }
         });
-        ImageButton startCitySelectionFragment = (ImageButton) view.findViewById(R.id.imageButton3);
+
+        //Устанавливаем слушатель для кнопки "выбор города"
+        MaterialButton startCitySelectionFragment = (MaterialButton) view.findViewById(R.id.imageButton3);
         startCitySelectionFragment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -43,6 +48,7 @@ public class FragmentMainScreen extends Fragment {
             }
         });
 
+        //Инициализируем список с карточками прогноза на неделю
         SourceOfWeekForecastCard sourceData = new SourceOfWeekForecastCard(getResources());
         initRecyclerView(sourceData.build(), view);
 

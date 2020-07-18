@@ -28,7 +28,6 @@ public class WeekForecastAdapter extends RecyclerView.Adapter<WeekForecastAdapte
     public void onBindViewHolder(@NonNull WeekForecastAdapter.ViewHolder holder, int position) {
         ContentOfWeekForecastCard contentOfWeekForecastCard = dataSource.getContentOfWeekForecastCard(position);
         holder.setData(contentOfWeekForecastCard.getDate());
-
     }
 
     @Override
