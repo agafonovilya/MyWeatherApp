@@ -6,4 +6,18 @@
         <item>Saint-Petersburg</item>
         <item>Glazov</item>
     </string-array>
+    <string-array name="items">
+        <item>One</item>
+        <item>Two</item>
+        <item>Three</item>
+    </string-array>
+    <string-array name="date">
+        <item>30 июля</item>
+        <item>31 июля</item>
+        <item>1 августа</item>
+        <item>2 августа</item>
+        <item>3 августа</item>
+        <item>4 августа</item>
+        <item>5 августа</item>
+    </string-array>
 </resources>

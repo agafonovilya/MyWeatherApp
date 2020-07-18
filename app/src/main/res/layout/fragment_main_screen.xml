@@ -23,7 +23,6 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:background="@android:color/transparent"
-                android:onClick="clickOnCitySelection"
                 android:padding="10dp"
                 android:scaleType="centerCrop"
                 app:layout_constraintStart_toStartOf="parent"
@@ -115,7 +114,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#FFFFFF"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_weight="1">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -313,17 +313,11 @@
             </LinearLayout>
         </ScrollView>
 
-        <!--<FrameLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/weekForecast"
             android:layout_width="match_parent"
-            android:layout_height="141dp">
-
-            <Button
-                android:id="@+id/button2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Построить маршрут до Александровской колонны"
-                android:onClick="openDoubleGIS"/>
-        </FrameLayout>-->
+            android:layout_height="wrap_content"
+            android:layout_weight="0" />
 
     </LinearLayout>
 
