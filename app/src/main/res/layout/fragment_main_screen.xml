@@ -59,6 +59,15 @@
             android:layout_height="200dp"
             android:background="@color/currentWeatherBackground">
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/updateWeather"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                app:icon="@drawable/ic_baseline_refresh_24"
+                app:iconGravity="textStart"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <TextView
                 android:id="@+id/textView2"
                 android:layout_width="200dp"
@@ -87,11 +96,11 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <TextView
-                    android:id="@+id/textView"
+                    android:id="@+id/currentTemperature"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
                     android:gravity="center"
-                    android:text="+22"
+                    android:text="-"
                     android:textColor="#000000"
                     android:textSize="32sp" />
 

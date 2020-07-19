@@ -1,5 +1,6 @@
 package ru.geekbrains.myweatherapp.fragments;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -35,6 +36,7 @@ public class FragmentCitySelection extends Fragment {
 
         // Инициализируем AutoCompleteTextView, передаем массив городов
         AutoCompleteTextView autoCompleteTextView = view.findViewById(R.id.textInputCitySelection);
+        autoCompleteTextView.setThreshold(1);   //Минимальное кол-во символов до начала показа подходящих вариантов
         String[] cities = getResources().getStringArray(R.array.arrayOfCity);
         List<String> citiesList = Arrays.asList(cities);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, citiesList);
