@@ -2,6 +2,8 @@ package ru.geekbrains.myweatherapp;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentTransaction;
 
 import ru.geekbrains.myweatherapp.fragments.FragmentCitySelection;
@@ -19,6 +21,16 @@ public class MainActivityByFragment extends AppCompatActivity {
         FragmentMainScreen fragmentMainScreen = new FragmentMainScreen();
         ft.replace(R.id.replace_this, fragmentMainScreen);
         ft.commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer !=null && drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     public void startFragment(int item) {

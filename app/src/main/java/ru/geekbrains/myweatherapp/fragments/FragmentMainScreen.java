@@ -1,22 +1,32 @@
 package ru.geekbrains.myweatherapp.fragments;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
@@ -29,67 +39,108 @@ import java.util.stream.Collectors;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import ru.geekbrains.myweatherapp.BuildConfig;
 import ru.geekbrains.myweatherapp.MainActivityByFragment;
 import ru.geekbrains.myweatherapp.R;
+import ru.geekbrains.myweatherapp.hourlyForecast.HourlyForecastAdapter;
+import ru.geekbrains.myweatherapp.hourlyForecast.SourceOfHourlyForecastCard;
 import ru.geekbrains.myweatherapp.weatherData.WeatherRequest;
-import ru.geekbrains.myweatherapp.weekForecastByRecyclerView.SourceOfWeekForecastCard;
-import ru.geekbrains.myweatherapp.weekForecastByRecyclerView.WeekForecastAdapter;
+import ru.geekbrains.myweatherapp.weekForecast.SourceOfWeekForecastCard;
+import ru.geekbrains.myweatherapp.weekForecast.WeekForecastAdapter;
 
-public class FragmentMainScreen extends Fragment {
+public class FragmentMainScreen extends Fragment implements NavigationView.OnNavigationItemSelectedListener{
     private final String TAG = "WEATHER";
     private final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather?q=Saint Petersburg,RU&appid=";
-    private final String WEATHER_API_KEY = "cb26104e3d1cc3dfeaefb672099173b1";
 
     private TextView currentTemperature;
+    private Activity activity;
+
+    @Override
+    public void onAttach(@NonNull Activity activity) {
+        super.onAttach(activity);
+        this.activity = activity;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_main_screen, container, false);
+        return inflater.inflate(R.layout.fragment_main_screen_with_navigation_drawer, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        Toolbar toolbar = view.findViewById(R.id.main_fragment_toolbar);
+        ((AppCompatActivity) activity).setSupportActionBar(toolbar);
+        ((AppCompatActivity) activity).getSupportActionBar().setDisplayShowTitleEnabled(false);
+        setHasOptionsMenu(true);
+
+        DrawerLayout drawer = (DrawerLayout) view.findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                activity, drawer, toolbar, R.string.open, R.string.open);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+        NavigationView navigationView = (NavigationView) view.findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
         getWeatherFromServer(view);
 
-        //Устанавливаем слушатель для кнопки "настройки"
-        MaterialButton startSettingsFragment = (MaterialButton) view.findViewById(R.id.imageButton);
-        startSettingsFragment.setOnClickListener(new View.OnClickListener() {
+        //Устанавливаем слушатель для SwipeRefresh
+        final SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
-            public void onClick(View v) {
-                ((MainActivityByFragment)getActivity()).startFragment(2);
-            }
-        });
-
-        //Устанавливаем слушатель для кнопки "выбор города"
-        MaterialButton startCitySelectionFragment = (MaterialButton) view.findViewById(R.id.imageButton3);
-        startCitySelectionFragment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((MainActivityByFragment)getActivity()).startFragment(3);
-            }
-        });
-
-        //Устанавливаем слушатель для кнопки обновить погоду
-        MaterialButton updateWeather = (MaterialButton) view.findViewById(R.id.updateWeather);
-        updateWeather.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            public void onRefresh() {
                 getWeatherFromServer(view);
+
+                //Устанавливаем задержку анимации
+                new Handler().postDelayed(new Runnable() {
+                    @Override public void run() {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                }, 1000);
             }
         });
 
         //Инициализируем список с карточками прогноза на неделю
         SourceOfWeekForecastCard sourceData = new SourceOfWeekForecastCard(getResources());
+
         initRecyclerView(sourceData.build(), view);
+        initRecyclerViewTwo((new SourceOfHourlyForecastCard(getResources())).build(), view);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        activity = null;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.main_fragment_toolbar_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        switch (id){
+            case (R.id.main_fragment_toolbar_change_city):
+                ((MainActivityByFragment)getActivity()).startFragment(3);
+                break;
+            case (R.id.main_fragment_toolbar_settings):
+                ((MainActivityByFragment)getActivity()).startFragment(2);
+                break;
+            default:break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void getWeatherFromServer(final View view) {
 
         currentTemperature = view.findViewById(R.id.currentTemperature);
         try {
-            final URL uri = new URL(WEATHER_URL + WEATHER_API_KEY);
+            final URL uri = new URL(WEATHER_URL + BuildConfig.WEATHER_API_KEY);
             final Handler handler = new Handler(); // Запоминаем основной поток
             new Thread(new Runnable() {
                 public void run() {
@@ -111,7 +162,7 @@ public class FragmentMainScreen extends Fragment {
                             }
                         });
                     } catch (Exception e) {
-                        Snackbar.make(view, "Fail connection", BaseTransientBottomBar.LENGTH_SHORT).show();
+                        Snackbar.make(view, "Fail connection"+BuildConfig.WEATHER_API_KEY, BaseTransientBottomBar.LENGTH_SHORT).show();
                         Log.e(TAG, "Fail connection", e);
                         e.printStackTrace();
                     } finally {
@@ -150,9 +201,31 @@ public class FragmentMainScreen extends Fragment {
 
         WeekForecastAdapter adapter = new WeekForecastAdapter(sourceData);
         recyclerView.setAdapter(adapter);
+    }
+    private void initRecyclerViewTwo(SourceOfHourlyForecastCard sourceData, View view){
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.hourlyForecast);
 
-        DividerItemDecoration itemDecoration = new DividerItemDecoration(recyclerView.getContext(),  layoutManager.getOrientation());
-        itemDecoration.setDrawable(ContextCompat.getDrawable(getContext(), R.drawable.separator));
-        recyclerView.addItemDecoration(itemDecoration);
+        // Эта установка служит для повышения производительности системы
+        recyclerView.setHasFixedSize(true);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
+        layoutManager.setOrientation(RecyclerView.VERTICAL);
+        recyclerView.setLayoutManager(layoutManager);
+
+        HourlyForecastAdapter adapter = new HourlyForecastAdapter(sourceData);
+        recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.nav_about) {
+            Toast.makeText(activity, R.string.about, Toast.LENGTH_SHORT).show();
+        } else if (id == R.id.nav_write_to_us) {
+            Toast.makeText(activity, R.string.write_to_us,Toast.LENGTH_SHORT).show();
+        }
+        DrawerLayout drawer = (DrawerLayout) getView().findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 }
