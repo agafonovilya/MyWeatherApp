@@ -26,20 +26,26 @@ public class FragmentCitySelection extends Fragment {
         View view = inflater.inflate(R.layout.fragment_city_selection, container, false);
 
         //Устанавливаем слушатель для кнопки назад
-        MaterialButton backButton = (MaterialButton) view.findViewById(R.id.imageButton2);
+        MaterialButton backButton = view.findViewById(R.id.imageButton2);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivityByFragment)getActivity()).onBackPressed();
+                (getActivity()).onBackPressed();
             }
         });
 
+        initAutoCompeteTextView(container, view);
+
+        return view;
+    }
+
+    private void initAutoCompeteTextView(final ViewGroup container, View view) {
         // Инициализируем AutoCompleteTextView, передаем массив городов
         AutoCompleteTextView autoCompleteTextView = view.findViewById(R.id.textInputCitySelection);
         autoCompleteTextView.setThreshold(1);   //Минимальное кол-во символов до начала показа подходящих вариантов
         String[] cities = getResources().getStringArray(R.array.arrayOfCity);
         List<String> citiesList = Arrays.asList(cities);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, citiesList);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, citiesList);
         autoCompleteTextView.setAdapter(adapter);
 
         // Устанавливаем слушатель на прикосновение к строке ввода города, чтобы сразу открывался весь доступный список городов
@@ -52,7 +58,7 @@ public class FragmentCitySelection extends Fragment {
             }
         });
 
-        // Устанавливаем слешатель на выбор города, с последующим переходом на основной экран
+        // Устанавливаем слушатель на выбор города, с последующим переходом на основной экран
         autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -66,7 +72,5 @@ public class FragmentCitySelection extends Fragment {
                 }).show();
             }
         });
-
-        return view;
     }
 }

@@ -1,6 +1,11 @@
 package ru.geekbrains.myweatherapp.fragments;
 
-import android.app.Activity;
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -25,7 +30,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -35,6 +39,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -53,13 +58,9 @@ public class FragmentMainScreen extends Fragment implements NavigationView.OnNav
     private final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather?q=Saint Petersburg,RU&appid=";
 
     private TextView currentTemperature;
-    private Activity activity;
+    private TextView light;
 
-    @Override
-    public void onAttach(@NonNull Activity activity) {
-        super.onAttach(activity);
-        this.activity = activity;
-    }
+    private DrawerLayout drawer;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -71,13 +72,12 @@ public class FragmentMainScreen extends Fragment implements NavigationView.OnNav
         super.onViewCreated(view, savedInstanceState);
 
         Toolbar toolbar = view.findViewById(R.id.main_fragment_toolbar);
-        ((AppCompatActivity) activity).setSupportActionBar(toolbar);
-        ((AppCompatActivity) activity).getSupportActionBar().setDisplayShowTitleEnabled(false);
+        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
         setHasOptionsMenu(true);
 
-        DrawerLayout drawer = (DrawerLayout) view.findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                activity, drawer, toolbar, R.string.open, R.string.open);
+        drawer = view.findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(getActivity(), drawer, toolbar, R.string.open, R.string.open);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         NavigationView navigationView = (NavigationView) view.findViewById(R.id.nav_view);
@@ -104,14 +104,11 @@ public class FragmentMainScreen extends Fragment implements NavigationView.OnNav
         //Инициализируем список с карточками прогноза на неделю
         SourceOfWeekForecastCard sourceData = new SourceOfWeekForecastCard(getResources());
 
-        initRecyclerView(sourceData.build(), view);
-        initRecyclerViewTwo((new SourceOfHourlyForecastCard(getResources())).build(), view);
-    }
+        initWeekForecastRecyclerView(sourceData.build(), view);
+        initHourlyForecastRecyclerView((new SourceOfHourlyForecastCard(getResources())).build(), view);
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        activity = null;
+        initLightSensor(view);
+
     }
 
     @Override
@@ -189,8 +186,8 @@ public class FragmentMainScreen extends Fragment implements NavigationView.OnNav
         Snackbar.make(getView(), "Update", BaseTransientBottomBar.LENGTH_SHORT).show();
     }
 
-    private void initRecyclerView(SourceOfWeekForecastCard sourceData, View view){
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.weekForecast);
+    private void initWeekForecastRecyclerView(SourceOfWeekForecastCard sourceData, View view){
+        RecyclerView recyclerView = view.findViewById(R.id.weekForecast);
 
         // Эта установка служит для повышения производительности системы
         recyclerView.setHasFixedSize(true);
@@ -202,8 +199,8 @@ public class FragmentMainScreen extends Fragment implements NavigationView.OnNav
         WeekForecastAdapter adapter = new WeekForecastAdapter(sourceData);
         recyclerView.setAdapter(adapter);
     }
-    private void initRecyclerViewTwo(SourceOfHourlyForecastCard sourceData, View view){
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.hourlyForecast);
+    private void initHourlyForecastRecyclerView(SourceOfHourlyForecastCard sourceData, View view){
+        RecyclerView recyclerView = view.findViewById(R.id.hourlyForecast);
 
         // Эта установка служит для повышения производительности системы
         recyclerView.setHasFixedSize(true);
@@ -220,12 +217,38 @@ public class FragmentMainScreen extends Fragment implements NavigationView.OnNav
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.nav_about) {
-            Toast.makeText(activity, R.string.about, Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.about, Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_write_to_us) {
-            Toast.makeText(activity, R.string.write_to_us,Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.write_to_us,Toast.LENGTH_SHORT).show();
         }
-        DrawerLayout drawer = (DrawerLayout) getView().findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    public void onBackPressed(){
+        drawer.closeDrawer(GravityCompat.START);
+    }
+
+
+    private void initLightSensor(View view) {
+
+        light = view.findViewById(R.id.lightSensor);
+        SensorManager sensorManager = (SensorManager) requireContext().getSystemService(Context.SENSOR_SERVICE);
+        Sensor sensorLight = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        sensorManager.registerListener(listenerLight, sensorLight,
+                SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    SensorEventListener listenerLight = new SensorEventListener() {
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        }
+
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            light.setText(String.valueOf(event.values[0]));
+        }
+    };
+
 }
