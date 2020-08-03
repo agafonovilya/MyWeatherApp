@@ -28,8 +28,7 @@ public class HourlyForecastAdapter extends RecyclerView.Adapter<HourlyForecastAd
     public void onBindViewHolder(@NonNull HourlyForecastAdapter.ViewHolder holder, int position) {
         // TODO: 22.07.2020 здесь получаем данные с сервера
         ContentOfHourlyForecastCard contentOfHourlyForecastCard = dataSource.getContentOfHourlyForecastCard(position);
-        holder.setData(contentOfHourlyForecastCard.getTime(), contentOfHourlyForecastCard.getTemperature(),
-                contentOfHourlyForecastCard.getWindDirection(), contentOfHourlyForecastCard.getWind());
+        holder.setData(contentOfHourlyForecastCard);
     }
 
     @Override
@@ -51,27 +50,12 @@ public class HourlyForecastAdapter extends RecyclerView.Adapter<HourlyForecastAd
             wind = (TextView) itemView.findViewById(R.id.hourlyCardWind);
         }
 
-        public void setData(String time, String temperature, String windDirection, String wind){
-            getTime().setText(time);
-            getTemperature().setText(temperature);
-            getWindDirection().setText(windDirection);
-            getWind().setText(wind);
-        }
-
-        public TextView getTime(){
-            return time;
-        }
-
-        public TextView getTemperature() {
-            return temperature;
-        }
-
-        public TextView getWindDirection() {
-            return windDirection;
-        }
-
-        public TextView getWind() {
-            return wind;
+        public void setData(ContentOfHourlyForecastCard contentOfHourlyForecastCard){
+            time.setText(contentOfHourlyForecastCard.getTime());
+            temperature.setText(contentOfHourlyForecastCard.getTemperature());
+            windDirection.setText(contentOfHourlyForecastCard.getWindDirection());
+            wind.setText(contentOfHourlyForecastCard.getWind());
         }
     }
+
 }

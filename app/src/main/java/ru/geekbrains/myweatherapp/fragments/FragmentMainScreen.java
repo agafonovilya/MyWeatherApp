@@ -1,11 +1,5 @@
 package ru.geekbrains.myweatherapp.fragments;
 
-import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -39,7 +33,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -61,6 +54,7 @@ public class FragmentMainScreen extends Fragment implements NavigationView.OnNav
     private TextView light;
 
     private DrawerLayout drawer;
+    private Toolbar toolbar;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -71,20 +65,19 @@ public class FragmentMainScreen extends Fragment implements NavigationView.OnNav
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Toolbar toolbar = view.findViewById(R.id.main_fragment_toolbar);
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
-        setHasOptionsMenu(true);
-
-        drawer = view.findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(getActivity(), drawer, toolbar, R.string.open, R.string.open);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-        NavigationView navigationView = (NavigationView) view.findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
+        initToolbar(view);
+        initNavigationView(view);
         getWeatherFromServer(view);
+        setListeners(view);
 
+        //Инициализируем список с карточками прогноза на неделю
+        SourceOfWeekForecastCard sourceData = new SourceOfWeekForecastCard(getResources());
+        initWeekForecastRecyclerView(sourceData.build(), view);
+        initHourlyForecastRecyclerView((new SourceOfHourlyForecastCard(getResources())).build(), view);
+
+    }
+
+    private void setListeners(@NonNull final View view) {
         //Устанавливаем слушатель для SwipeRefresh
         final SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -100,15 +93,22 @@ public class FragmentMainScreen extends Fragment implements NavigationView.OnNav
                 }, 1000);
             }
         });
+    }
 
-        //Инициализируем список с карточками прогноза на неделю
-        SourceOfWeekForecastCard sourceData = new SourceOfWeekForecastCard(getResources());
+    private void initNavigationView(@NonNull View view) {
+        drawer = view.findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(getActivity(), drawer, toolbar, R.string.open, R.string.open);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+        NavigationView navigationView = (NavigationView) view.findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+    }
 
-        initWeekForecastRecyclerView(sourceData.build(), view);
-        initHourlyForecastRecyclerView((new SourceOfHourlyForecastCard(getResources())).build(), view);
-
-        initLightSensor(view);
-
+    private void initToolbar(@NonNull View view) {
+        toolbar = view.findViewById(R.id.main_fragment_toolbar);
+        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -122,10 +122,10 @@ public class FragmentMainScreen extends Fragment implements NavigationView.OnNav
         int id = item.getItemId();
         switch (id){
             case (R.id.main_fragment_toolbar_change_city):
-                ((MainActivityByFragment)getActivity()).startFragment(3);
+                ((MainActivityByFragment)getActivity()).startFragment(new FragmentCitySelection());
                 break;
             case (R.id.main_fragment_toolbar_settings):
-                ((MainActivityByFragment)getActivity()).startFragment(2);
+                ((MainActivityByFragment)getActivity()).startFragment(new FragmentSettings());
                 break;
             default:break;
         }
@@ -134,7 +134,6 @@ public class FragmentMainScreen extends Fragment implements NavigationView.OnNav
     }
 
     private void getWeatherFromServer(final View view) {
-
         currentTemperature = view.findViewById(R.id.currentTemperature);
         try {
             final URL uri = new URL(WEATHER_URL + BuildConfig.WEATHER_API_KEY);
@@ -228,27 +227,5 @@ public class FragmentMainScreen extends Fragment implements NavigationView.OnNav
     public void onBackPressed(){
         drawer.closeDrawer(GravityCompat.START);
     }
-
-
-    private void initLightSensor(View view) {
-
-        light = view.findViewById(R.id.lightSensor);
-        SensorManager sensorManager = (SensorManager) requireContext().getSystemService(Context.SENSOR_SERVICE);
-        Sensor sensorLight = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-        sensorManager.registerListener(listenerLight, sensorLight,
-                SensorManager.SENSOR_DELAY_NORMAL);
-    }
-
-    SensorEventListener listenerLight = new SensorEventListener() {
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        }
-
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            light.setText(String.valueOf(event.values[0]));
-        }
-    };
 
 }
