@@ -2,13 +2,13 @@ package ru.geekbrains.myweatherapp.fragments;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,34 +27,39 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.gson.Gson;
+import com.squareup.picasso.Picasso;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.stream.Collectors;
 
-import javax.net.ssl.HttpsURLConnection;
+import org.apache.commons.lang3.StringUtils;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import ru.geekbrains.myweatherapp.BuildConfig;
 import ru.geekbrains.myweatherapp.MainActivityByFragment;
 import ru.geekbrains.myweatherapp.R;
 import ru.geekbrains.myweatherapp.hourlyForecast.HourlyForecastAdapter;
 import ru.geekbrains.myweatherapp.hourlyForecast.SourceOfHourlyForecastCard;
+import ru.geekbrains.myweatherapp.interfaces.CurrentWeather;
 import ru.geekbrains.myweatherapp.weatherData.WeatherRequest;
 import ru.geekbrains.myweatherapp.weekForecast.SourceOfWeekForecastCard;
 import ru.geekbrains.myweatherapp.weekForecast.WeekForecastAdapter;
 
 public class FragmentMainScreen extends Fragment implements NavigationView.OnNavigationItemSelectedListener{
     private final String TAG = "WEATHER";
-    private final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather?q=Saint Petersburg,RU&appid=";
+    private final String baseURL = "https://api.openweathermap.org/";
+    private final double absoluteZero = -273.15;
 
     private TextView currentTemperature;
-    private TextView light;
+    private TextView currentWeatherDescription;
+    private ImageView currentWeatherIcon;
 
     private DrawerLayout drawer;
     private Toolbar toolbar;
+
+    private CurrentWeather currentWeatherInterface;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -67,7 +72,6 @@ public class FragmentMainScreen extends Fragment implements NavigationView.OnNav
 
         initToolbar(view);
         initNavigationView(view);
-        getWeatherFromServer(view);
         setListeners(view);
 
         //Инициализируем список с карточками прогноза на неделю
@@ -75,6 +79,20 @@ public class FragmentMainScreen extends Fragment implements NavigationView.OnNav
         initWeekForecastRecyclerView(sourceData.build(), view);
         initHourlyForecastRecyclerView((new SourceOfHourlyForecastCard(getResources())).build(), view);
 
+        currentTemperature = view.findViewById(R.id.currentTemperature);
+        currentWeatherDescription =  view.findViewById(R.id.currentWeatherDescription);
+        currentWeatherIcon = view.findViewById(R.id.currentWeatherIcon);
+
+        initRetrofit();
+        requestRetrofit("Saint Petersburg,RU", view);
+    }
+
+    private void initRetrofit() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(baseURL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        currentWeatherInterface = retrofit.create(CurrentWeather.class);
     }
 
     private void setListeners(@NonNull final View view) {
@@ -83,9 +101,10 @@ public class FragmentMainScreen extends Fragment implements NavigationView.OnNav
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getWeatherFromServer(view);
 
-                //Устанавливаем задержку анимации
+                requestRetrofit("Saint Petersburg,RU", view);
+
+                //Устанавливаем задержку анимации обновления страницы
                 new Handler().postDelayed(new Runnable() {
                     @Override public void run() {
                         swipeRefreshLayout.setRefreshing(false);
@@ -93,6 +112,36 @@ public class FragmentMainScreen extends Fragment implements NavigationView.OnNav
                 }, 1000);
             }
         });
+
+    }
+
+    private void requestRetrofit(String cityCountry, final View view) {
+        currentWeatherInterface.loadWeather(cityCountry, BuildConfig.WEATHER_API_KEY)
+                .enqueue(new Callback<WeatherRequest>() {
+                    @Override
+                    public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
+                        if (response.body() != null) {
+                            loadAndSetCurrentWeatherIcon(response);
+
+                            Double temp = response.body().getMain().getTemp() + absoluteZero;
+                            currentTemperature.setText(String.format("%+.0f", temp));
+                            currentWeatherDescription.setText(StringUtils.capitalize(response.body().getWeather().get(0).getDescription()));
+
+                            Snackbar.make(view, "Update", BaseTransientBottomBar.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<WeatherRequest> call, Throwable t) {
+                        Snackbar.make(view, "Fail update", BaseTransientBottomBar.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void loadAndSetCurrentWeatherIcon(Response<WeatherRequest> response) {
+        Picasso.get()
+                .load("https://openweathermap.org/img/wn/" + response.body().getWeather().get(0).getIcon() +"@2x.png")
+                .into(currentWeatherIcon);
     }
 
     private void initNavigationView(@NonNull View view) {
@@ -131,58 +180,6 @@ public class FragmentMainScreen extends Fragment implements NavigationView.OnNav
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private void getWeatherFromServer(final View view) {
-        currentTemperature = view.findViewById(R.id.currentTemperature);
-        try {
-            final URL uri = new URL(WEATHER_URL + BuildConfig.WEATHER_API_KEY);
-            final Handler handler = new Handler(); // Запоминаем основной поток
-            new Thread(new Runnable() {
-                public void run() {
-                    HttpsURLConnection urlConnection = null;
-                    try {
-                        urlConnection = (HttpsURLConnection) uri.openConnection();
-                        urlConnection.setRequestMethod("GET"); // установка метода получения данных -GET
-                        urlConnection.setReadTimeout(10000); // установка таймаута - 10 000 миллисекунд
-                        BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream())); // читаем  данные в поток
-                        String result = getLines(in);
-                        // преобразование данных запроса в модель
-                        Gson gson = new Gson();
-                        final WeatherRequest weatherRequest = gson.fromJson(result, WeatherRequest.class);
-                        // Возвращаемся к основному потоку
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                displayWeather(weatherRequest);
-                            }
-                        });
-                    } catch (Exception e) {
-                        Snackbar.make(view, "Fail connection"+BuildConfig.WEATHER_API_KEY, BaseTransientBottomBar.LENGTH_SHORT).show();
-                        Log.e(TAG, "Fail connection", e);
-                        e.printStackTrace();
-                    } finally {
-                        if (null != urlConnection) {
-                            urlConnection.disconnect();
-                        }
-                    }
-                }
-            }).start();
-        } catch (MalformedURLException e) {
-            Snackbar.make(view, "Fail update weather. ", BaseTransientBottomBar.LENGTH_SHORT).show();
-            Log.e(TAG, "Fail URI", e);
-            e.printStackTrace();
-        }
-    }
-
-    private String getLines(BufferedReader in) {
-        return in.lines().collect(Collectors.joining("\n"));
-    }
-
-    private void displayWeather(WeatherRequest weatherRequest){
-        Double temp = weatherRequest.getMain().getTemp() - 273.15;
-        currentTemperature.setText(String.format("%+.0f", temp));
-        Snackbar.make(getView(), "Update", BaseTransientBottomBar.LENGTH_SHORT).show();
     }
 
     private void initWeekForecastRecyclerView(SourceOfWeekForecastCard sourceData, View view){
