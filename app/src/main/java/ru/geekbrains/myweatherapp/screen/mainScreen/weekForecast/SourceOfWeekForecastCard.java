@@ -1,4 +1,4 @@
-package ru.geekbrains.myweatherapp.weekForecast;
+package ru.geekbrains.myweatherapp.screen.mainScreen.weekForecast;
 
 import android.content.res.Resources;
 

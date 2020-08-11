@@ -1,4 +1,4 @@
-package ru.geekbrains.myweatherapp.hourlyForecast;
+package ru.geekbrains.myweatherapp.screen.mainScreen.hourlyForecast;
 
 public class ContentOfHourlyForecastCard {
     private String time;
