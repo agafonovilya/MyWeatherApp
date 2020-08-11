@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:theme="@style/AppTheme">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,14 +15,11 @@
             android:layout_height="50dp"
             android:orientation="horizontal">
 
-            <ImageButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/imageButton2"
                 android:layout_width="50dp"
                 android:layout_height="match_parent"
-                android:background="@android:color/transparent"
-                android:padding="5dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_baseline_arrow_back_24"
+                app:icon="@drawable/ic_baseline_arrow_back_24"
                 />
 
             <TextView
@@ -30,7 +29,6 @@
                 android:gravity="center_vertical"
                 android:paddingLeft="30dp"
                 android:text="City selection"
-                android:textColor="#000000"
                 android:textSize="24dp" />
         </LinearLayout>
 
@@ -40,28 +38,18 @@
             android:layout_height="1dp"
             android:background="?android:attr/listDivider" />
 
-        <TextView
-            android:id="@+id/textView8"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Choose a city from the list"
-            android:paddingLeft="20dp"
-            android:textSize="16sp"
-            android:textColor="@android:color/black"/>
+            android:layout_height="wrap_content">
 
-        <Spinner
-            android:id="@+id/spinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/arrayOfCity"
-            android:paddingLeft="20dp"
-            />
+            <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                style="@style/Widget.MaterialComponents.AutoCompleteTextView.FilledBox"
+                android:id="@+id/textInputCitySelection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Выберите город"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <View
-            android:id="@+id/divider3"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="?android:attr/listDivider" />
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

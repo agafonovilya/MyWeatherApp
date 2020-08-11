@@ -2,4 +2,8 @@
 <resources>
     <string name="app_name">My weather app</string>
     <string name="City">Санкт-Петербург</string>
+    <string name="Settings">Настройки</string>
+    <string name="city_selection">Выбор города</string>
+    <string name="about">О разработчике</string>
+    <string name="write_to_us">Напишите нам</string>
 </resources>

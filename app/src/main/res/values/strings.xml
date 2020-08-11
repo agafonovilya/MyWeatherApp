@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">My weather app</string>
     <string name="City">Saint-Petersburg</string>
+    <string name="Settings">Settings</string>
+    <string name="city_selection">City selection</string>
+    <string name="open">open</string>
+    <string name="about">About</string>
+    <string name="write_to_us">Write to us</string>
     <string-array name="arrayOfCity">
         <item>Moscow</item>
         <item>Saint-Petersburg</item>
@@ -19,5 +24,8 @@
         <item>3 августа</item>
         <item>4 августа</item>
         <item>5 августа</item>
+    </string-array>
+    <string-array name="time">
+        <item>1</item>
     </string-array>
 </resources>

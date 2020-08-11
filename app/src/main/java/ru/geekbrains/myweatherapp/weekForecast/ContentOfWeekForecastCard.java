@@ -1,4 +1,4 @@
-package ru.geekbrains.myweatherapp.weekForecastByRecyclerView;
+package ru.geekbrains.myweatherapp.weekForecast;
 
 public class ContentOfWeekForecastCard {
     private String date;

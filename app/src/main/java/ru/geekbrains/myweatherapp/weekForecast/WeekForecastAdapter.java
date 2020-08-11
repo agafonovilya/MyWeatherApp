@@ -1,4 +1,4 @@
-package ru.geekbrains.myweatherapp.weekForecastByRecyclerView;
+package ru.geekbrains.myweatherapp.weekForecast;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +28,6 @@ public class WeekForecastAdapter extends RecyclerView.Adapter<WeekForecastAdapte
     public void onBindViewHolder(@NonNull WeekForecastAdapter.ViewHolder holder, int position) {
         ContentOfWeekForecastCard contentOfWeekForecastCard = dataSource.getContentOfWeekForecastCard(position);
         holder.setData(contentOfWeekForecastCard.getDate());
-
     }
 
     @Override
