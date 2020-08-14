@@ -1,4 +1,4 @@
-package ru.geekbrains.myweatherapp.hourlyForecast;
+package ru.geekbrains.myweatherapp.screen.mainScreen.hourlyForecast;
 
 import android.content.res.Resources;
 
@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.geekbrains.myweatherapp.R;
-import ru.geekbrains.myweatherapp.weekForecast.ContentOfWeekForecastCard;
 
 public class SourceOfHourlyForecastCard {
     private List<ContentOfHourlyForecastCard> dataSource;

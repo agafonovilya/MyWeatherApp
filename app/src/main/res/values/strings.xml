@@ -3,13 +3,14 @@
     <string name="City">Saint-Petersburg</string>
     <string name="Settings">Settings</string>
     <string name="city_selection">City selection</string>
-    <string name="open">open</string>
+    <string name="open">Open</string>
     <string name="about">About</string>
     <string name="write_to_us">Write to us</string>
+    <string name="searchHistory">Search history</string>
     <string-array name="arrayOfCity">
-        <item>Moscow</item>
-        <item>Saint-Petersburg</item>
-        <item>Glazov</item>
+        <item>Moscow,RU</item>
+        <item>Saint Petersburg,RU</item>
+        <item>Glazov,RU</item>
     </string-array>
     <string-array name="items">
         <item>One</item>
