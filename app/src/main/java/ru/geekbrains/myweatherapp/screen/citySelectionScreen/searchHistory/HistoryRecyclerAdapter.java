@@ -45,13 +45,17 @@ public class HistoryRecyclerAdapter extends RecyclerView.Adapter<HistoryRecycler
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SharedPreferences sharedPreferences = activity.getPreferences(MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("currentCity", city.nameOfCity);
-                editor.commit();
+                saveToSharedPreferences(city);
                 activity.onBackPressed();
             }
         });
+    }
+
+    private void saveToSharedPreferences(City city) {
+        SharedPreferences sharedPreferences = activity.getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("currentCity", city.nameOfCity);
+        editor.commit();
     }
 
     @Override

@@ -53,7 +53,7 @@ public class CitySelectionFragment extends Fragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().onBackPressed();
+                requireActivity().onBackPressed();
             }
         });
         
@@ -114,20 +114,26 @@ public class CitySelectionFragment extends Fragment {
 
                 //Добавляем город в базу данных и обновляем Recycler
                 City city = new City();
-                city.nameOfCity = (String) parent.getItemAtPosition(position);
-                city.date = getCurrentDate();
-                city.temperature = "-";
-                historySource.addCity(city);
-                historyRecyclerAdapter.notifyDataSetChanged();
-
-                //Сохраняем выбранный город в SharedPreferences и возвращаемся на главный экран
-                SharedPreferences sharedPreferences = requireActivity().getPreferences(MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("currentCity", city.nameOfCity);
-                editor.commit();
-                ((AppCompatActivity) requireContext()).onBackPressed();
+                addCityToHistory(parent, position, city);
+                saveToSharedPreferences(city);
+                requireActivity().onBackPressed();
             }
         });
+    }
+
+    private void addCityToHistory(AdapterView<?> parent, int position, City city) {
+        city.nameOfCity = (String) parent.getItemAtPosition(position);
+        city.date = getCurrentDate();
+        city.temperature = "-";
+        historySource.addCity(city);
+        historyRecyclerAdapter.notifyDataSetChanged();
+    }
+
+    private void saveToSharedPreferences(City city) {
+        SharedPreferences sharedPreferences = requireActivity().getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("currentCity", city.nameOfCity);
+        editor.commit();
     }
 
     private String getCurrentDate() {

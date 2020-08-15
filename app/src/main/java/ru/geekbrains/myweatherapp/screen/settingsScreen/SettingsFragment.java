@@ -23,7 +23,7 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                ((MainActivity)getActivity()).onBackPressed();
+                requireActivity().onBackPressed();
             }
         });
         return view;
