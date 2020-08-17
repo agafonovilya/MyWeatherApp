@@ -143,19 +143,22 @@ public class MainScreenFragment extends Fragment implements NavigationView.OnNav
 
                             currentWeatherDescription.setText(StringUtils.capitalize(response.body().getWeather().get(0).getDescription()));
 
-                            //На этом месте иногда кидаются исключения
-                            //java.lang.IllegalArgumentException: No suitable parent found from the given view. Please provide a valid view.
-                            Snackbar.make(view, "Update", BaseTransientBottomBar.LENGTH_SHORT).show();
+                            showSnackbar(view, "Update");
                         }
                     }
 
                     @Override
                     public void onFailure(Call<WeatherRequest> call, Throwable t) {
-                        Snackbar.make(view, "Fail update", BaseTransientBottomBar.LENGTH_SHORT).show();
+                        showSnackbar(view, "Fail update");
                     }
                 });
     }
 
+    private void showSnackbar(View view, String message) {
+        if (view != null) {
+            Snackbar.make(view, message, BaseTransientBottomBar.LENGTH_SHORT).show();
+        }
+    }
 
 
     private void setListeners(@NonNull final View view) {
