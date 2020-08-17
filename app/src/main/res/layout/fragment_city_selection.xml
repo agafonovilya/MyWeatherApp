@@ -30,6 +30,12 @@
                 android:paddingLeft="30dp"
                 android:text="City selection"
                 android:textSize="24dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/mapButton"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                app:icon= "@drawable/ic_baseline_map_24"/>
         </LinearLayout>
 
         <View
