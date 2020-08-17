@@ -59,31 +59,6 @@ public class MainActivity extends AppCompatActivity implements StartFragment {
 
     @Override
     public void startFragment(Fragment fragment) {
-        /*if (fragment.getClass() == MainScreenFragment.class) {
-
-            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-                FragmentManager.BackStackEntry first = getSupportFragmentManager().getBackStackEntryAt(0);
-                getSupportFragmentManager().popBackStack(first.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                Log.d(TAG, "startFragment: ++++++++++++++++++++++++++++");
-
-            }
-        }*/
-        /*if (fragment.getClass() == MainScreenFragment.class) {
-            while (getSupportFragmentManager().getBackStackEntryCount() > 1){
-                Log.d(TAG, "startFragment: ++++++++++++++++++++++++++++");
-                getSupportFragmentManager().popBackStackImmediate();
-            }
-        }*/
-
-       /* FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-
-        if (fragment.getClass() != MainScreenFragment.class) {
-            ft.addToBackStack();
-        }
-
-        ft.replace(R.id.container_for_fragment, fragment);
-        ft.commit();*/
-
         String backStateName = fragment.getClass().getName();
 
         if (fragment.getClass().equals(MainScreenFragment.class)) {
