@@ -66,17 +66,18 @@ import ru.geekbrains.myweatherapp.screen.citySelectionScreen.searchHistory.Histo
 import ru.geekbrains.myweatherapp.screen.settingsScreen.SettingsFragment;
 import ru.geekbrains.myweatherapp.screen.mainScreen.hourlyForecast.HourlyForecastAdapter;
 import ru.geekbrains.myweatherapp.screen.mainScreen.hourlyForecast.SourceOfHourlyForecastCard;
-import ru.geekbrains.myweatherapp.weatherRequestInterface.WeatherRequestByCityName;
-import ru.geekbrains.myweatherapp.weatherData.WeatherRequest;
+import ru.geekbrains.myweatherapp.forecastdata.current.CurrentWeatherRequest;
+import ru.geekbrains.myweatherapp.forecastdata.hourly.HourlyForecastRequest;
 import ru.geekbrains.myweatherapp.screen.mainScreen.weekForecast.SourceOfWeekForecastCard;
 import ru.geekbrains.myweatherapp.screen.mainScreen.weekForecast.WeekForecastAdapter;
-import ru.geekbrains.myweatherapp.weatherRequestInterface.WeatherRequestByCoordinates;
+import ru.geekbrains.myweatherapp.weatherRequestInterface.OneCallAPIRequest;
 
 import static android.content.Context.MODE_PRIVATE;
 
 public class MainScreenFragment extends Fragment implements NavigationView.OnNavigationItemSelectedListener {
     private final String TAG = "WEATHER";
     private final String baseURL = "https://api.openweathermap.org/";
+    private final String exclude = "curent,hourly,daily";
     private final double absoluteZero = -273.15;
 
     private TextView cityName;
@@ -87,8 +88,13 @@ public class MainScreenFragment extends Fragment implements NavigationView.OnNav
     private DrawerLayout drawer;
     private Toolbar toolbar;
 
-    private WeatherRequestByCityName weatherRequestByCityName;
-    private WeatherRequestByCoordinates weatherRequestByCoordinates;
+    private ru.geekbrains.myweatherapp.weatherRequestInterface.current.ByCityName currentByCityName;
+    private ru.geekbrains.myweatherapp.weatherRequestInterface.current.ByCoordinates currentByCoordinates;
+
+    private OneCallAPIRequest oneCallAPIRequest;
+
+    //private ru.geekbrains.myweatherapp.weatherRequestInterface. hourlyByCityName;
+
 
     private SharedPreferences sharedPreferences;
 
@@ -111,11 +117,35 @@ public class MainScreenFragment extends Fragment implements NavigationView.OnNav
         //Инициализируем RecyclerView с карточками прогноза на неделю и почасовыми
         SourceOfWeekForecastCard sourceData = new SourceOfWeekForecastCard(getResources());
         initWeekForecastRecyclerView(sourceData.build(), view);
-        initHourlyForecastRecyclerView((new SourceOfHourlyForecastCard(getResources())).build(), view);
 
         initRetrofit();
-        requestRetrofitByCityName(sharedPreferences.getString("currentCity", "Saint Petersburg,RU"));
+        requestCurrentWeatherByCityName(sharedPreferences.getString("currentCity", "Saint Petersburg,RU"));
+       // requestHourlyForecastByCityName(sharedPreferences.getString("currentCity", "Saint Petersburg,RU"));
+        requestOneCallApi("59.894444", "30.264168");
+
     }
+
+    private void requestOneCallApi(String latitude, String longitude) {
+        oneCallAPIRequest.loadWeather(latitude, longitude, exclude, BuildConfig.WEATHER_API_KEY)
+                .enqueue(new Callback<OneCallAPIRequest>() {
+                    @Override
+                    public void onResponse(Call<OneCallAPIRequest> call, Response<OneCallAPIRequest> response) {
+                        Log.d(TAG, "onResponse: One Call API forecast update");
+                        Log.d(TAG, "onResponse: " + call.request().toString());
+                        if (response.body() != null) {
+                            Log.d(TAG, "onResponse: response.body() != null");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<OneCallAPIRequest> call, Throwable t) {
+                        Log.d(TAG, "onFailure: " + call.request().toString());
+                        Log.d(TAG, "onFailure: " + t.toString());
+                        //showSnackbar("Fail update");
+                    }
+                });
+    }
+
 
     private void loadDataFromSharedPreferences(@NonNull View view) {
         sharedPreferences = requireActivity().getPreferences(MODE_PRIVATE);
@@ -141,15 +171,18 @@ public class MainScreenFragment extends Fragment implements NavigationView.OnNav
                 .baseUrl(baseURL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        weatherRequestByCityName = retrofit.create(WeatherRequestByCityName.class);
-        weatherRequestByCoordinates = retrofit.create(WeatherRequestByCoordinates.class);
+        currentByCityName = retrofit.create(ru.geekbrains.myweatherapp.weatherRequestInterface.current.ByCityName.class);
+        currentByCoordinates = retrofit.create(ru.geekbrains.myweatherapp.weatherRequestInterface.current.ByCoordinates.class);
+        oneCallAPIRequest = retrofit.create(OneCallAPIRequest.class);
+        //hourlyByCityName = retrofit.create(ru.geekbrains.myweatherapp.weatherRequestInterface.hourly.ByCityName.class);
+        //hourlyByCoordinates = retrofit.create(ru.geekbrains.myweatherapp.weatherRequestInterface.hourly.ByCoordinates.class);
     }
 
-    private void requestRetrofitByCityName(String cityCountry) {
-        weatherRequestByCityName.loadWeather(cityCountry, BuildConfig.WEATHER_API_KEY)
-                .enqueue(new Callback<WeatherRequest>() {
+    private void requestCurrentWeatherByCityName(String cityCountry) {
+        currentByCityName.loadWeather(cityCountry, BuildConfig.WEATHER_API_KEY)
+                .enqueue(new Callback<CurrentWeatherRequest>() {
                     @Override
-                    public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
+                    public void onResponse(Call<CurrentWeatherRequest> call, Response<CurrentWeatherRequest> response) {
                         if (response.body() != null) {
                             loadAndSetCurrentWeatherIcon(response);
 
@@ -164,17 +197,17 @@ public class MainScreenFragment extends Fragment implements NavigationView.OnNav
                     }
 
                     @Override
-                    public void onFailure(Call<WeatherRequest> call, Throwable t) {
+                    public void onFailure(Call<CurrentWeatherRequest> call, Throwable t) {
                         showSnackbar("Fail update");
                     }
                 });
     }
 
-    private void requestRetrofitByCoordinates(String latitude, String longitude) {
-        weatherRequestByCoordinates.loadWeather(latitude, longitude, BuildConfig.WEATHER_API_KEY)
-                .enqueue(new Callback<WeatherRequest>() {
+    private void requestCurrentWeatherByCoordinates(String latitude, String longitude) {
+        currentByCoordinates.loadWeather(latitude, longitude, BuildConfig.WEATHER_API_KEY)
+                .enqueue(new Callback<CurrentWeatherRequest>() {
                     @Override
-                    public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
+                    public void onResponse(Call<CurrentWeatherRequest> call, Response<CurrentWeatherRequest> response) {
                         if (response.body() != null) {
                             loadAndSetCurrentWeatherIcon(response);
 
@@ -194,12 +227,34 @@ public class MainScreenFragment extends Fragment implements NavigationView.OnNav
                     }
 
                     @Override
-                    public void onFailure(Call<WeatherRequest> call, Throwable t) {
+                    public void onFailure(Call<CurrentWeatherRequest> call, Throwable t) {
                         Log.e(TAG, "onFailure: " + t.toString());
                         showSnackbar("Fail update");
                     }
                 });
     }
+
+    /*private void requestHourlyForecastByCityName(String cityCountry) {
+        hourlyByCityName.loadWeather(cityCountry, BuildConfig.WEATHER_API_KEY)
+                .enqueue(new Callback<HourlyForecastRequest>() {
+                    @Override
+                    public void onResponse(Call<HourlyForecastRequest> call, Response<HourlyForecastRequest> response) {
+                        Log.d(TAG, "onResponse: Hourly forecast update");
+                        Log.d(TAG, "onResponse: " + call.request().toString());
+                        if (response.body() != null) {
+                            Log.d(TAG, "onResponse: response.body() != null");
+
+                            initHourlyForecastRecyclerView((new SourceOfHourlyForecastCard(getResources(), response.body())).build(), requireView());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<HourlyForecastRequest> call, Throwable t) {
+                        Log.d(TAG, "onFailure: Hourly forecast not update");
+                        Log.d(TAG, "onFailure: " + t.toString());
+                    }
+                });
+    }*/
 
     private void showSnackbar(String message) {
             Snackbar.make(requireView(), message, BaseTransientBottomBar.LENGTH_SHORT).show();
@@ -213,7 +268,7 @@ public class MainScreenFragment extends Fragment implements NavigationView.OnNav
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                requestRetrofitByCityName("Saint Petersburg,RU");
+                requestCurrentWeatherByCityName("Saint Petersburg,RU");
 
                 //Устанавливаем задержку анимации обновления страницы
                 new Handler().postDelayed(new Runnable() {
@@ -231,13 +286,13 @@ public class MainScreenFragment extends Fragment implements NavigationView.OnNav
                 String lat = result.getString("lat");
                 String lon = result.getString("lon");
                 Log.d(TAG, "onFragmentResult: "+ lat + " ," + lon);
-                requestRetrofitByCoordinates(lat, lon);
+                requestCurrentWeatherByCoordinates(lat, lon);
             }
         });
 
     }
 
-    private void loadAndSetCurrentWeatherIcon(Response<WeatherRequest> response) {
+    private void loadAndSetCurrentWeatherIcon(Response<CurrentWeatherRequest> response) {
        Picasso.get()
                .load("https://openweathermap.org/img/wn/" + response.body().getWeather().get(0).getIcon() +"@4x.png")
                .into(new Target() {

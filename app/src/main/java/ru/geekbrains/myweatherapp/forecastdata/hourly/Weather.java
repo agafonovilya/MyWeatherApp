@@ -1,5 +1,5 @@
 
-package ru.geekbrains.myweatherapp.weatherData;
+package ru.geekbrains.myweatherapp.forecastdata.hourly;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

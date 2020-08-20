@@ -1,11 +1,11 @@
 
-package ru.geekbrains.myweatherapp.weatherData;
+package ru.geekbrains.myweatherapp.forecastdata.current;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class WeatherRequest {
+public class CurrentWeatherRequest {
 
     @SerializedName("coord")
     @Expose
