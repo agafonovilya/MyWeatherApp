@@ -10,7 +10,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,7 +23,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import ru.geekbrains.myweatherapp.screen.mapsScreen.MapsFragment;
 import ru.geekbrains.myweatherapp.R;
+import ru.geekbrains.myweatherapp.StartFragment;
 import ru.geekbrains.myweatherapp.screen.citySelectionScreen.searchHistory.App;
 import ru.geekbrains.myweatherapp.screen.citySelectionScreen.searchHistory.City;
 import ru.geekbrains.myweatherapp.screen.citySelectionScreen.searchHistory.CityDao;
@@ -64,6 +65,14 @@ public class CitySelectionFragment extends Fragment {
             public void onClick(View v) {
                 historySource.deleteHistory();
                 historyRecyclerAdapter.notifyDataSetChanged();
+            }
+        });
+
+        MaterialButton mapsButton = view.findViewById(R.id.mapButton);
+        mapsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((StartFragment) requireActivity()).startFragment(new MapsFragment());
             }
         });
     }

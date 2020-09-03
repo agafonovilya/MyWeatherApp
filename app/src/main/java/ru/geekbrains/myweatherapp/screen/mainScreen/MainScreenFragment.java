@@ -26,6 +26,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentResultListener;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -43,6 +44,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -53,13 +59,18 @@ import ru.geekbrains.myweatherapp.BuildConfig;
 import ru.geekbrains.myweatherapp.StartFragment;
 import ru.geekbrains.myweatherapp.R;
 import ru.geekbrains.myweatherapp.screen.citySelectionScreen.CitySelectionFragment;
+import ru.geekbrains.myweatherapp.screen.citySelectionScreen.searchHistory.App;
+import ru.geekbrains.myweatherapp.screen.citySelectionScreen.searchHistory.City;
+import ru.geekbrains.myweatherapp.screen.citySelectionScreen.searchHistory.CityDao;
+import ru.geekbrains.myweatherapp.screen.citySelectionScreen.searchHistory.HistorySource;
 import ru.geekbrains.myweatherapp.screen.settingsScreen.SettingsFragment;
 import ru.geekbrains.myweatherapp.screen.mainScreen.hourlyForecast.HourlyForecastAdapter;
 import ru.geekbrains.myweatherapp.screen.mainScreen.hourlyForecast.SourceOfHourlyForecastCard;
-import ru.geekbrains.myweatherapp.weatherRequestInterface.CurrentWeatherRequest;
+import ru.geekbrains.myweatherapp.weatherRequestInterface.WeatherRequestByCityName;
 import ru.geekbrains.myweatherapp.weatherData.WeatherRequest;
 import ru.geekbrains.myweatherapp.screen.mainScreen.weekForecast.SourceOfWeekForecastCard;
 import ru.geekbrains.myweatherapp.screen.mainScreen.weekForecast.WeekForecastAdapter;
+import ru.geekbrains.myweatherapp.weatherRequestInterface.WeatherRequestByCoordinates;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -68,6 +79,7 @@ public class MainScreenFragment extends Fragment implements NavigationView.OnNav
     private final String baseURL = "https://api.openweathermap.org/";
     private final double absoluteZero = -273.15;
 
+    private TextView cityName;
     private TextView currentTemperature;
     private TextView currentWeatherDescription;
     private ImageView currentWeatherIcon;
@@ -75,7 +87,9 @@ public class MainScreenFragment extends Fragment implements NavigationView.OnNav
     private DrawerLayout drawer;
     private Toolbar toolbar;
 
-    private CurrentWeatherRequest currentWeatherRequest;
+    private WeatherRequestByCityName weatherRequestByCityName;
+    private WeatherRequestByCoordinates weatherRequestByCoordinates;
+
     private SharedPreferences sharedPreferences;
 
 
@@ -100,12 +114,12 @@ public class MainScreenFragment extends Fragment implements NavigationView.OnNav
         initHourlyForecastRecyclerView((new SourceOfHourlyForecastCard(getResources())).build(), view);
 
         initRetrofit();
-        requestRetrofit(sharedPreferences.getString("currentCity", "Saint Petersburg,RU"), view);
+        requestRetrofitByCityName(sharedPreferences.getString("currentCity", "Saint Petersburg,RU"));
     }
 
     private void loadDataFromSharedPreferences(@NonNull View view) {
         sharedPreferences = requireActivity().getPreferences(MODE_PRIVATE);
-        ((TextView) view.findViewById(R.id.cityName)).setText(sharedPreferences.getString("currentCity", "Saint Petersburg,RU"));
+        cityName.setText(sharedPreferences.getString("currentCity", "Saint Petersburg,RU"));
         currentTemperature.setText(sharedPreferences.getString("lastTemperature", "-"));
 
         //Получаем путь к сохраненной иконке погоды. При первом заупуске приложения путь еще не сохранен, поэтому проверяем на null
@@ -116,6 +130,7 @@ public class MainScreenFragment extends Fragment implements NavigationView.OnNav
     }
 
     private void initView(@NonNull View view) {
+        cityName = view.findViewById(R.id.cityName);
         currentTemperature = view.findViewById(R.id.currentTemperature);
         currentWeatherDescription =  view.findViewById(R.id.currentWeatherDescription);
         currentWeatherIcon = view.findViewById(R.id.currentWeatherIcon);
@@ -126,11 +141,12 @@ public class MainScreenFragment extends Fragment implements NavigationView.OnNav
                 .baseUrl(baseURL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        currentWeatherRequest = retrofit.create(CurrentWeatherRequest.class);
+        weatherRequestByCityName = retrofit.create(WeatherRequestByCityName.class);
+        weatherRequestByCoordinates = retrofit.create(WeatherRequestByCoordinates.class);
     }
 
-    private void requestRetrofit(String cityCountry, final View view) {
-        currentWeatherRequest.loadWeather(cityCountry, BuildConfig.WEATHER_API_KEY)
+    private void requestRetrofitByCityName(String cityCountry) {
+        weatherRequestByCityName.loadWeather(cityCountry, BuildConfig.WEATHER_API_KEY)
                 .enqueue(new Callback<WeatherRequest>() {
                     @Override
                     public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
@@ -143,21 +159,51 @@ public class MainScreenFragment extends Fragment implements NavigationView.OnNav
 
                             currentWeatherDescription.setText(StringUtils.capitalize(response.body().getWeather().get(0).getDescription()));
 
-                            showSnackbar(view, "Update");
+                            showSnackbar("Update");
                         }
                     }
 
                     @Override
                     public void onFailure(Call<WeatherRequest> call, Throwable t) {
-                        showSnackbar(view, "Fail update");
+                        showSnackbar("Fail update");
                     }
                 });
     }
 
-    private void showSnackbar(View view, String message) {
-        if (view != null) {
-            Snackbar.make(view, message, BaseTransientBottomBar.LENGTH_SHORT).show();
-        }
+    private void requestRetrofitByCoordinates(String latitude, String longitude) {
+        weatherRequestByCoordinates.loadWeather(latitude, longitude, BuildConfig.WEATHER_API_KEY)
+                .enqueue(new Callback<WeatherRequest>() {
+                    @Override
+                    public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
+                        if (response.body() != null) {
+                            loadAndSetCurrentWeatherIcon(response);
+
+                            String nameWithCountry = response.body().getName() + "," + response.body().getSys().getCountry();
+                            String temp = String.format("%+.0f", response.body().getMain().getTemp() + absoluteZero);
+                            currentTemperature.setText(temp);
+                            currentWeatherDescription.setText(StringUtils.capitalize(response.body().getWeather().get(0).getDescription()));
+                            cityName.setText(nameWithCountry);
+
+                            sharedPreferences.edit().putString("lastTemperature", temp).apply();
+                            sharedPreferences.edit().putString("currentCity", nameWithCountry).apply();
+
+                            addCityToHistory(nameWithCountry);
+
+                            showSnackbar("Update");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<WeatherRequest> call, Throwable t) {
+                        Log.e(TAG, "onFailure: " + t.toString());
+                        showSnackbar("Fail update");
+                    }
+                });
+    }
+
+    private void showSnackbar(String message) {
+            Snackbar.make(requireView(), message, BaseTransientBottomBar.LENGTH_SHORT).show();
+
     }
 
 
@@ -167,7 +213,7 @@ public class MainScreenFragment extends Fragment implements NavigationView.OnNav
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                requestRetrofit("Saint Petersburg,RU", view);
+                requestRetrofitByCityName("Saint Petersburg,RU");
 
                 //Устанавливаем задержку анимации обновления страницы
                 new Handler().postDelayed(new Runnable() {
@@ -177,6 +223,18 @@ public class MainScreenFragment extends Fragment implements NavigationView.OnNav
                 }, 1000);
             }
         });
+
+        //Устанавливаем слушатель для FragmentResult
+        getParentFragmentManager().setFragmentResultListener("coord", this, new FragmentResultListener() {
+            @Override
+            public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
+                String lat = result.getString("lat");
+                String lon = result.getString("lon");
+                Log.d(TAG, "onFragmentResult: "+ lat + " ," + lon);
+                requestRetrofitByCoordinates(lat, lon);
+            }
+        });
+
     }
 
     private void loadAndSetCurrentWeatherIcon(Response<WeatherRequest> response) {
@@ -311,8 +369,34 @@ public class MainScreenFragment extends Fragment implements NavigationView.OnNav
             drawer.closeDrawer(GravityCompat.START);
             return true;
         } else {
+
             return false;
        }
+    }
+
+    private void addCityToHistory(String name) {
+        CityDao cityDao = App.getInstance().getCityHistoryDao();
+        HistorySource historySource = new HistorySource(cityDao);
+
+        List<City> listOfCity = historySource.getListOfCity();
+        for (City city : listOfCity) {
+            if (city.nameOfCity.equals(name)) {
+                historySource.deleteCity(city);
+            }
+        }
+
+        City city = new City();
+
+        city.nameOfCity = name;
+        city.date = getCurrentDate();
+        city.temperature = "-";
+
+        historySource.addCity(city);
+    }
+
+    private String getCurrentDate() {
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+        return dateFormat.format(new Date());
     }
 
 }

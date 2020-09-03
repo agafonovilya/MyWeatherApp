@@ -8,12 +8,12 @@ public class Wind {
 
     @SerializedName("speed")
     @Expose
-    private Integer speed;
+    private double speed;
     @SerializedName("deg")
     @Expose
     private Integer deg;
 
-    public Integer getSpeed() {
+    public double getSpeed() {
         return speed;
     }
 

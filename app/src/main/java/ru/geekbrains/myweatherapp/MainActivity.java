@@ -13,12 +13,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
 
 import ru.geekbrains.myweatherapp.broadcastReceivers.ConnectivityChange;
 import ru.geekbrains.myweatherapp.broadcastReceivers.PowerConnected;
@@ -54,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements StartFragment {
         if (activeFragment!= null && activeFragment.getClass() == MainScreenFragment.class) {
             // Вызываем у активного фрагмента метод onBackPressed
             if (!((MainScreenFragment) activeFragment).onBackPressed()) {
-                super.onBackPressed();
+                finish();
             }
         } else {
             super.onBackPressed();
@@ -63,14 +59,15 @@ public class MainActivity extends AppCompatActivity implements StartFragment {
 
     @Override
     public void startFragment(Fragment fragment) {
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        String backStateName = fragment.getClass().getName();
 
-        if (fragment.getClass() != MainScreenFragment.class) {
-            ft.addToBackStack("");
+        if (fragment.getClass().equals(MainScreenFragment.class)) {
+            getSupportFragmentManager().popBackStackImmediate(MainScreenFragment.class.getName(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
-
-        ft.replace(R.id.container_for_fragment, fragment);
-        ft.commit();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.container_for_fragment, fragment);
+        fragmentTransaction.addToBackStack(backStateName);
+        fragmentTransaction.commit();
     }
 
     private void initNotificationChannel() {
