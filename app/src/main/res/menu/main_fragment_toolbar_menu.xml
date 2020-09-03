@@ -6,17 +6,17 @@
 
     >
         <item
-            android:id="@+id/main_fragment_toolbar_change_city"
+            android:id="@+id/mainFragmentToolbar_changeCity"
             android:orderInCategory="10"
             android:title="@string/city_selection"
-            app:showAsAction="ifRoom"
+            app:showAsAction="always"
             android:icon="@drawable/ic_baseline_location_city_24"
             />
         <item
-            android:id="@+id/main_fragment_toolbar_settings"
+            android:id="@+id/mainFragmentToolbar_auth"
             android:orderInCategory="20"
-            android:title="@string/Settings"
-            app:showAsAction="never"
-            android:icon="@drawable/ic_cogwheel"
-            />
+            android:title="@string/authentication"
+            app:showAsAction="ifRoom"
+            android:icon="@drawable/ic_baseline_account_circle_24"/>
+
 </menu>

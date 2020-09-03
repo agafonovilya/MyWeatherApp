@@ -3,41 +3,65 @@ package ru.geekbrains.myweatherapp;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import ru.geekbrains.myweatherapp.broadcastReceivers.ConnectivityChange;
-import ru.geekbrains.myweatherapp.broadcastReceivers.PowerConnected;
-import ru.geekbrains.myweatherapp.screen.mainScreen.MainScreenFragment;
+import ru.geekbrains.myweatherapp.screen.city.searchHistory.App;
+import ru.geekbrains.myweatherapp.screen.city.searchHistory.City;
+import ru.geekbrains.myweatherapp.screen.city.searchHistory.CityDao;
+import ru.geekbrains.myweatherapp.screen.city.searchHistory.HistorySource;
+import ru.geekbrains.myweatherapp.screen.main.MainScreenFragment;
+import ru.geekbrains.myweatherapp.screen.maps.MapsFragment;
 
 public class MainActivity extends AppCompatActivity implements StartFragment {
-    private ConnectivityChange wiFiStateChange = new ConnectivityChange();
-    private PowerConnected powerConnected = new PowerConnected();
-
-    private static final String TAG = "WEATHER";
+    private static final int PERMISSION_REQUEST_CODE = 10;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_by_fragment);
+        setContentView(R.layout.activity_main);
 
-        registerBroadcastReceivers();
         initNotificationChannel();
+        firstRunInit();
         startFragment(new MainScreenFragment());
+    }
+
+    private void firstRunInit() {
+        CityDao cityDao = App.getInstance().getCityHistoryDao();
+        HistorySource historySource = new HistorySource(cityDao);
+
+        String latitude;
+        String longitude;
+        String cityName;
+        if(historySource.getCountCity()!= 0) {
+            City lastCity = historySource.getListOfCity().get(0);
+            latitude = lastCity.lat;
+            longitude = lastCity.lon;
+            cityName = lastCity.nameOfCity;
+        } else {
+            latitude = "59.57";
+            longitude = "30.190";
+            cityName = getResources().getString(R.string.SaintPetersburg);
+        }
+
+        Bundle result = new Bundle();
+        result.putString("lat", latitude);
+        result.putString("lon", longitude);
+        result.putString("cityName", cityName);
+        getSupportFragmentManager().setFragmentResult("coord", result);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(wiFiStateChange);
-        unregisterReceiver(powerConnected);
     }
 
     @Override
@@ -76,9 +100,16 @@ public class MainActivity extends AppCompatActivity implements StartFragment {
         }
     }
 
-    private void registerBroadcastReceivers() {
-        registerReceiver(wiFiStateChange, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
-        registerReceiver(powerConnected, new IntentFilter(Intent.ACTION_POWER_CONNECTED));
-    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length == 2 &&
+                    (grantResults[0] == PackageManager.PERMISSION_GRANTED || grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
 
+                getSupportFragmentManager().popBackStack();
+                startFragment(new MapsFragment());
+            }
+        }
+    }
 }

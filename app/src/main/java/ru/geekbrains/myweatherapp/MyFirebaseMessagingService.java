@@ -22,7 +22,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.d(TAG, remoteMessage.getNotification().getBody());
         String title = remoteMessage.getNotification().getTitle();
         if (title == null) {
-            title = "Push Message";
+            title = "MyWeatherApp";
         }
         String text = remoteMessage.getNotification().getBody();
 

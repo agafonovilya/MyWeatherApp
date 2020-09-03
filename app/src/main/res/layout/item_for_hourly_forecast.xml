@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="50dp"
@@ -13,49 +12,31 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/hourlyCardTime"
+            android:id="@+id/hourlyCard_time"
             android:layout_width="100dp"
             android:layout_height="match_parent"
-            android:text="- -:- -"
             android:textSize="18sp"
             android:gravity="center"
             android:layout_weight="1"/>
-
-        <TextView
-            android:id="@+id/hourlyCardTemperature"
-            android:layout_width="50dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="_ _ _"
-            android:textSize="18sp"
-            android:gravity="center"
-            android:layout_weight="1"/>
-        <TextView
-            android:id="@+id/hourlyCardWindDirection"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:text="_ _"
-            android:textSize="18sp"
-            android:gravity="center"
-            android:layout_marginLeft="20dp"
-            android:layout_weight="1"/>
-        <TextView
-            android:id="@+id/hourlyCardWind"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:text="_ _ _"
-            android:textSize="18sp"
-            android:gravity="center"
-            android:layout_weight="1"/>
+            android:orientation="vertical"
+            android:layout_weight="1">
+            <TextView
+                android:id="@+id/hourlyCard_temperature"
+                android:layout_width="100dp"
+                android:layout_height="25dp"
+                android:textSize="18sp"
+                android:gravity="center"/>
 
-        <ImageView
-            android:id="@+id/hourlyWeatherIcon"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="20dp"
-            app:srcCompat="@drawable/ic_wsymbol_0002_sunny_intervals"
-            android:layout_weight="1"/>
-
-
+            <TextView
+                android:id="@+id/hourlyCard_wind"
+                android:layout_width="100dp"
+                android:layout_height="25dp"
+                android:textSize="18sp"
+                android:gravity="center"/>
+        </LinearLayout>
 
     </LinearLayout>
 

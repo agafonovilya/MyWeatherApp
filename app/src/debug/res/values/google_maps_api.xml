@@ -7,7 +7,7 @@
     You can also add your credentials to an existing key, using these values:
 
     Package name:
-    ru.geekbrains.myweatherapp
+    ru.geekbrains.myweatherapp.full
 
     SHA-1 certificate fingerprint:
     98:A3:26:23:05:A5:1A:3F:4D:4B:5F:2E:7A:08:D2:32:AA:4B:75:27
@@ -18,5 +18,5 @@
     Once you have your key (it starts with "AIza"), replace the "google_maps_key"
     string in this file.
     -->
-    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyDasWlqqIBqmjEJsEvVqKI2oabgqoEMNGQ</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyApOfn7k2pidogp5-ooCGlps7Wlmilymo0</string>
 </resources>

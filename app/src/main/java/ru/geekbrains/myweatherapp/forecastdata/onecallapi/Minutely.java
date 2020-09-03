@@ -11,7 +11,7 @@ public class Minutely {
     private Integer dt;
     @SerializedName("precipitation")
     @Expose
-    private Integer precipitation;
+    private Double precipitation;
 
     public Integer getDt() {
         return dt;
@@ -21,11 +21,11 @@ public class Minutely {
         this.dt = dt;
     }
 
-    public Integer getPrecipitation() {
+    public Double getPrecipitation() {
         return precipitation;
     }
 
-    public void setPrecipitation(Integer precipitation) {
+    public void setPrecipitation(Double precipitation) {
         this.precipitation = precipitation;
     }
 

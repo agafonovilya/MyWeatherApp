@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">My weather app</string>
-    <string name="City">Санкт-Петербург</string>
+    <string name="SaintPetersburg">Санкт-Петербург</string>
     <string name="Settings">Настройки</string>
     <string name="city_selection">Выбор города</string>
     <string name="open">Открыть</string>
     <string name="about">О разработчике</string>
     <string name="write_to_us">Напишите нам</string>
     <string name="searchHistory">История поиска</string>
+    <string name="lastUpdate">Обновлено</string>
+    <string name="account">Учетная запись</string>
+    <string name="email">Email</string>
+    <string name="authentication">Аутентификация</string>
+    <string name="sign_out">Выйти</string>
+    <string name="metrsPerSecond">\ м/с\</string>
 </resources>
